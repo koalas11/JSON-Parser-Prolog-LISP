@@ -1,273 +1,329 @@
-check_value(X) :-
-    string(X),
+% Atom
+
+jsonparse({}, jsonobj([])) :- !.
+
+jsonparse([], jsonarray([])) :- !.
+
+jsonparse(Atom, JSONResult) :-
+    atom(Atom),
+    catch(term_to_atom(Term, Atom), _, fail),
+    !,
+    jsonparse(Term, JSONResult).
+
+% Stringhe / Codes / Chars
+jsonparse(String, JSONResult) :-
+    string(String),
+    !,
+    catch(term_string(Term, String), _, fail),
+    jsonparse(Term, JSONResult).
+
+jsonparse(Codes, JSONResult) :-
+    is_list(Codes),
+    catch(atom_codes(Atom, Codes), _, fail),
+    jsonparse(Atom, JSONResult),
     !.
 
-check_value(X) :-
-    number(X),
-    !.
-
-check_value(X) :-
-    X = 'true',
-    !.
-
-check_value(X) :-
-    X = 'false',
-    !.
-
-check_value(X) :-
-    X = 'null',
+jsonparse(Chars, JSONResult) :-
+    is_list(Chars),
+    catch(atom_chars(Atom, Chars), _, fail),
+    jsonparse(Atom, JSONResult),
     !.
 
 % Term
-
-jsonparse({Term}, jsonobj(Y)) :-
+jsonparse(Term, JSONResult) :-
     compound(Term),
     !,
-    Term =.. List,
-    jsonparseobj_(List, Y),
-    is_list(Y).
+    jsonparse_(Term, JSONResult).
 
-jsonparse([Term], jsonarray(Y)) :-
-    compound(Term),
+% Jsonparse Reverse
+jsonparse(Result, JSON) :-
+    var(Result),
+    nonvar(JSON),
     !,
-    Term =.. List,
-    jsonparsearray_(List, Y).
+    jsonparseRev_(Result, JSON).
 
-jsonparse({}, jsonobj([])) :-
-    !.
+jsonparse_({}, jsonobj([])) :- !.
 
-jsonparse([], jsonarray([])) :-
-    !.
-
-% Atom
-
-jsonparse(Atom, Result) :-
-    atom(Atom),
-    catch(term_to_atom(Term, Atom), _, false),
+jsonparse_({Members}, jsonobj(Result)) :-
     !,
-    jsonparse(Term, Result).
+    Members =.. List,
+    jsonparseobj_(List, Result).
 
-% Stringhe / Codes / Chars
-jsonparse(String, Result) :-
+jsonparse_(List, jsonarray(Result)) :-
+    is_list(List),
+    !,
+    jsonparsearray_(List, Result).
+
+jsonparseobj_([':', String, Val], [(String , RValue)]) :-
     string(String),
-    !,
-    term_string(Term, String),
-    jsonparse(Term, Result).
+    checkValue(Val, RValue),
+    !.
 
-jsonparse(Codes, Result) :-
-    is_list(Codes),
-    atom_codes(Atom, Codes),
+jsonparseobj_([',', (Str : Val), Rest], [(Str , RVal) | Tail]) :-
     !,
-    jsonparse(Atom, Result).
-
-jsonparse(Chars, Result) :-
-    is_list(Chars),
-    atom_chars(Atom, Chars),
-    !,
-    jsonparse(Atom, Result).
-
-% COSE NASCOSTE
-jsonparseobj_([':', X, Y], [(Res)]) :-
-    string(X),
-    Y = {},
-    !,
-    Res =.. [',', X, jsonobj([])].
-
-jsonparseobj_([':', X, Y], [(Res)]) :-
-    string(X),
-    Y = {Y2},
-    !,
-    Y2 =.. L,
-    jsonparseobj_(L, TRes2),
-    Res =.. [',', X, jsonobj(TRes2)],
-    is_list(TRes2).
-
-jsonparseobj_([':', X, Y], [(Res)]) :-
-    string(X),
-    is_list(Y),
-    !,
-    jsonparsearray_(Y, TRes1),
-    Res =.. [',', X, jsonarray(TRes1)].
-
-jsonparseobj_([':', X, Y], [(Res)]) :-
-    !,
-    string(X),
-    check_value(Y),
-    Res =.. [',', X, Y].
-
-jsonparseobj_([',', X, Rest], [Head | Tail]) :-
-    !,
-    X =.. LX,
-    jsonparseobj_(LX, LHead),
-    LHead = [Head],
-    Rest =.. Rest2,
-    jsonparseobj_(Rest2, Tail).
+    string(Str),
+    checkValue(Val, RVal),
+    Rest =.. LRest,
+    jsonparseobj_(LRest, Tail).
 
 jsonparsearray_([], []) :- !.
 
-jsonparsearray_([{X} | Xs], [jsonobj(Res) | Ys]) :-
-    X =.. L,
+jsonparsearray_([Val | Tail], [RVal | RTail]) :-
+    checkValue(Val, RVal),
     !,
-    jsonparseobj_(L, Res),
-    is_list(Res),
-    jsonparsearray_(Xs, Ys).
+    jsonparsearray_(Tail, RTail).
 
-jsonparsearray_([X | Xs], [jsonarray(Res) | Ys]) :-
-    is_list(X),
+% Reverse
+
+jsonparseRev_({}, jsonobj([])) :- !.
+
+jsonparseRev_({Members}, jsonobj(List)) :-
     !,
-    jsonparsearray_(X, Res),
-    jsonparsearray_(Xs, Ys).
+    jsonparseObjRev_(Members, List).
 
-jsonparsearray_([X | Xs], [X | Ys]) :-
-    check_value(X),
+jsonparseRev_(RList, jsonarray(List)) :-
     !,
-    jsonparsearray_(Xs, Ys).
+    jsonparseArrayRev_(RList, List).
 
-
-
-%OLD WORKS
-
-jsonaccess(jsonobj(O), L, Result) :-
-    is_list(L),
-    !,
-    jsonaccess_(O, L, Result).
-
-jsonaccess(jsonobj(O), S, Result) :-
-    string(S),
-    !,
-    jsonaccess_(O, [S], Result).
-
-jsonaccess_(List, [Number], Result) :-
-    number(Number),
-    !,
-    nth0(Number, List, Result).
-
-jsonaccess_(List, [Number | Xs], Result) :-
-    number(Number),
-    nth0(Number, List, jsonarray(TResult)),
-    !,
-    jsonaccess_(TResult, Xs, Result).
-
-jsonaccess_(List, [Number | Xs], Result) :-
-    number(Number),
-    nth0(Number, List, jsonobj(TResult)),
-    !,
-    jsonaccess_(TResult, Xs, Result).
-
-jsonaccess_([Head | _], [X | [String]], Result) :-
-    Head =.. L,
-    [_, X, Y] = L,
-    Y = jsonobj(List),
-    !,
-    jsonaccess_(List, [String], Result).
-
-
-jsonaccess_([Head | _], [X | [String | Xs]], Result) :-
-    Head =.. L,
-    [_, X, Y] = L,
-    Y = jsonobj(List),
-    !,
-    jsonaccess_(List, [String | Xs], Result).
-
-jsonaccess_([Head | _], [X | [Number | Xs]], Result) :-
-    Head =.. L,
-    [_, X, Y] = L,
-    Y = jsonarray(List),
-    !,
-    jsonaccess_(List, [Number | Xs], Result).
-
-jsonaccess_([Head | _], [X], Result) :-
-    Head =.. L,
-    [_, X, Result] = L,
+jsonparseObjRev_(Str : RVal, [',', Str, Val]) :-
+    string(Str),
+    checkValue(RVal, Val),
     !.
 
-jsonaccess_([_ | Tail], L, Result) :-
+jsonparseObjRev_(Result, [Head]) :-
     !,
-    jsonaccess_(Tail, L, Result).
+    functor(Head, ',', 2),
+    Head =.. List,
+    jsonparseObjRev_(Result, List).
 
+jsonparseObjRev_(Result, [Head | Tail]) :-
+    !,
+    Head =.. List,
+    jsonparseObjRev_(TempResult1, List),
+    jsonparseObjRev_(TempResult2, Tail),
+    Result =.. [',', TempResult1, TempResult2].
 
-% INPUT/OUTPUT
+jsonparseArrayRev_([], []) :- !.
+
+jsonparseArrayRev_(Result, [Head | Tail]) :-
+    !,
+    checkValue(Pair, Head),
+    jsonparseArrayRev_(ResultTail, Tail),
+    append([Pair], ResultTail, Result).
+
 %
 
+checkValue(Str, Str) :-
+    string(Str),
+    !.
+
+checkValue(Num, Num) :-
+    number(Num),
+    !.
+
+checkValue('true', 'true') :- !.
+
+checkValue('false', 'false') :- !.
+
+checkValue('null', 'null') :- !.
+
+checkValue(JSON, Result) :-
+    nonvar(JSON),
+    !,
+    jsonparse_(JSON, Result).
+
+checkValue(Result, JSON) :-
+    !,
+    nonvar(JSON),
+    jsonparseRev_(Result, JSON).
+
+% JSONACCESS
+
+jsonaccess(jsonarray(_), [], _) :- !, fail.
+
+jsonaccess(JSON, Fields, Result) :-
+    nonvar(JSON),
+    !,
+    jsonaccess_(JSON, Fields, Result).
+
+jsonaccess_(jsonobj(X), String, Result) :-
+    string(String),
+    !,
+    member((String , Result), X),
+    !.
+
+jsonaccess_(jsonobj(X), Var, Result) :-
+    var(Var),
+    !,
+    member((Var , Result), X).
+
+% caso base in cui Field è un intero (trovo un intero)
+
+jsonaccess_(jsonarray(X), Index, Result) :-
+    integer(Index),
+    !,
+    nth0(Index, X, Result).
+
+jsonaccess_(jsonarray(X), Var, Result) :-
+    var(Var),
+    !,
+    nth0(Var, X, Result).
+
+% caso base (controlla se arriva a lista vuota come field)
+jsonaccess_(Obj, [], Obj) :- !.
+
+% richiamo su primo Field, poi sulla coda
+jsonaccess_(Obj, [Field | OtherFields], Result) :-
+    !,
+    jsonaccess_(Obj, Field, TRes),
+    jsonaccess_(TRes, OtherFields, Result).
+
+% INPUT/OUTPUT
+
 jsonread(FileName, JSON) :-
-    open(FileName, read, In),
-    read_string(In, _, String),
-    jsonparse(String, O),
-    JSON = O,
+    nonvar(FileName),
+    catch(open(FileName, read, In), _, fail),
+    catch(
+        (
+        read_string(In, _, String),
+        jsonparse(String, JSON)
+    ),
+        _,
+        (close(In), fail)
+    ),
+    !,
     close(In).
 
+% READ ALTERNATIVO POSSIBILE DA CANCELLARE GESTISCE CASO \\ ERRORE IN
+% PROLOG
+
+jsonread(FileName, JSON) :-
+    nonvar(FileName),
+    catch(open(FileName, read, In), _, fail),
+    catch(
+        (
+        get_char(In, Char),
+        jsonread(In, Char, Chars),
+        jsonparse(Chars, JSON)
+    ),
+        _,
+        (close(In), fail)
+    ),
+    !,
+    close(In).
+
+jsonread(_, end_of_file, []) :- !.
+
+jsonread(Stream, '\\', Chars) :-
+    get_char(Stream, '/'),
+    !,
+    Chars = ['/' | Rest],
+    get_char(Stream, Next),
+    jsonread(Stream, Next, Rest).
+
+jsonread(Stream, Char, Chars) :-
+    !,
+    Chars = [Char | Rest],
+    get_char(Stream, Next),
+    jsonread(Stream, Next, Rest).
+
+%JSONDUMP
+
 jsondump(JSON, File) :-
+    nonvar(JSON),
+    atom(File),
     open(File, write, Out),
     JSON =.. ListJSON,
-    jsondump_(ListJSON, Out, 0, 0),
+    jsondump_(ListJSON, Out, 0),
     close(Out).
 
-jsondump_([jsonobj, List], Out, Index, _) :-
+jsondump_([jsonobj, {}], Out, _) :-
+    !,
+    write(Out, "{}").
+
+jsondump_([jsonarray, []], Out, _) :-
+    !,
+    write(Out, "[]").
+
+jsondump_([jsonobj, List], Out, Index) :-
     !,
     writeln(Out, "{"),
     Index1 is Index + 2,
-    jsondumpobj_(List, Out, Index1, IndexLast),
-    tab(Out, IndexLast),
-    writeln(Out, "}").
+    jsondumpobj_(List, Out, Index1),
+    tab(Out, Index),
+    write(Out, "}").
 
-jsondump_([jsonarray, List], Out, Index, _) :-
+jsondump_([jsonarray, List], Out, Index) :-
     !,
     writeln(Out, "["),
     Index1 is Index + 2,
-    jsondumparray_(List, Out, Index1, IndexLast),
-    tab(Out, IndexLast),
-    writeln(Out, "]").
+    jsondumparray_(List, Out, Index1),
+    tab(Out, Index),
+    write(Out, "]").
 
 %OBJ
+printValue(Out, X) :-
+    string(X),
+    !,
+    write(Out, "\""),
+    write(Out, X),
+    write(Out, "\"").
 
-jsondumpobj_([',', X, Y], Out, Index, _) :-
-    check_value(Y),
+printValue(Out, X) :-
+    !,
+    write(Out, X).
+
+jsondumpobj_([',', X, Y], Out, Index) :-
+    checkValue(Y, _),
     !,
     tab(Out, Index),
-    format(Out, '"~w" : "~w"', [X, Y]).
+    format(Out, '"~w" : ', [X]),
+    printValue(Out, Y).
 
-jsondumpobj_([',', X, Y], Out, Index, IndexLast) :-
+jsondumpobj_([',', X, Y], Out, Index) :-
     !,
     tab(Out, Index),
     format(Out, '"~w" : ', [X]),
     Y =.. ListY,
-    jsondump_(ListY, Out, IndexLast, IndexLast).
+    jsondump_(ListY, Out, Index).
 
-jsondumpobj_([Head], Out, Index, Index) :-
+jsondumpobj_([Head], Out, Index) :-
     !,
     Head =.. ListHead,
-    jsondumpobj_(ListHead, Out, Index, Index).
+    jsondumpobj_(ListHead, Out, Index),
+    nl(Out).
 
-jsondumpobj_([Head | Tail], Out, Index, IndexLast) :-
+jsondumpobj_([Head | Tail], Out, Index) :-
     !,
     Head =.. ListHead,
-    jsondumpobj_(ListHead, Out, Index, IndexLast),
+    jsondumpobj_(ListHead, Out, Index),
     writeln(Out, ","),
-    jsondumpobj_(Tail, Out, Index, IndexLast).
+    jsondumpobj_(Tail, Out, Index).
 
 %ARRAY
 
-jsondumparray_([Head], Out, Index, Index) :-
-    !,
-    jsondumparray_(Head, Out, Index, Index),
-    nl(Out).
-
-jsondumparray_([Head | Tail], Out, Index, Index) :-
-    !,
-    jsondumparray_(Head, Out, Index, Index),
-    writeln(Out, ","),
-    jsondumparray_(Tail, Out, Index, Index).
-
-jsondumparray_(X, Out, Index, Index) :-
-    check_value(X),
+jsondumparray_([Head], Out, Index) :-
     !,
     tab(Out, Index),
+    jsondumparray_(Head, Out, Index),
+    nl(Out).
+
+jsondumparray_([Head | Tail], Out, Index) :-
+    !,
+    tab(Out, Index),
+    jsondumparray_(Head, Out, Index),
+    writeln(Out, ","),
+    jsondumparray_(Tail, Out, Index).
+
+jsondumparray_(X, Out, _) :-
+    checkValue(X, _),
+    !,
     format(Out, '"~w"', [X]).
 
-jsondumparray_(X, Out, Index, Index) :-
+jsondumparray_(X, Out, Index) :-
     !,
     X =.. List,
-    jsondump_(List, Out, Index, Index).
+    jsondump_(List, Out, Index).
 
 %
 
@@ -459,6 +515,8 @@ test("WOT", true) :-
       "taglib-uri": "cofax.tld",
       "taglib-location": "/WEB-INF/tlds/cofax.tld"}}},
         jsonparse(X, JSON),
+        jsonparse(Var, JSON),
+        Var = X,
         jsondump(JSON, 'foo2.json'),
         jsonread('foo2.json', JSON).
 
