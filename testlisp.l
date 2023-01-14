@@ -1,64 +1,114 @@
-(defun string-to-json (JSONString)
-  (if (eql (char JSONString 0) #\SPACE) (string-to-json (subseq JSONString 1))
-    (let ((var (length JSONString)))
-      (cond ((= var 0) nil)
-            ((and (eql #\{ (char JSONString 0)) (eql #\} (char JSONString (- var 1))))
-             (cons 'JSONOBJ (get-members (subseq JSONString 1 (- var 1)))))
-            ((and (eql #\[ (char JSONString 0)) (eql #\] (char JSONString (- var 1))))
-             (cons 'JSONARRAY (get-values (subseq JSONString 1 (- var 1)))))
-            (t (error "WUT"))))))
+;JSONPARSE
 
-(defun get-members (Members)
-  (if (= (length Members) 0) nil
-    (let ((var (position #\, Members)))
-      (cons (parse-member (subseq Members 0 var))
-            (if (null var) nil (get-members (subseq Members (+ var 1))))))))
+(defun jsonparse (JSONString) 
+  (stringToJSON (fixString JSONString)))
 
-(defun get-values (Values)
-  (if (= (length Values) 0) nil
-    (let* ((var (position #\, Values))
-          (var2 (position #\] Values))
-          (var3 (position #\} Values)))
-      (cond ((eql (char Values 0) #\[)
-             (if (null var2) (error "NO U 2")
-               (cons (parse-value (subseq Values 0 (+ var2 1)))
-                     (get-values (subseq Values (+ var2 1))))))
-            ((eql (char Values 0) #\{)
-             (if (null var3) (error "NO U 3")
-               (cons (parse-value (subseq Values 0 (+ var3 1)))
-                     (get-values (subseq Values (+ var3 1))))))
-            (t (cons (parse-value (subseq Values 0 var))
-                     (if (null var) nil
-                       (get-values (subseq Values (+ var 1))))))))))
+(defun stringToJSON (String)
+  (cond ((string= String "{}") (list 'JSONOBJ))
+        ((string= String "[]") (list 'JSONARRAY))
+        ((and (eql #\{ (firstChar String))
+              (eql #\} (lastChar String)))
+         (cons 'JSONOBJ (getMembers (removeBrackets String))))
+        ((and (eql #\[ (firstChar String))
+              (eql #\] (lastChar String)))
+         (cons 'JSONARRAY (getValues (removeBrackets String))))
+        (t (error "syntax error"))))
 
-(defun parse-member (Member)
-  (let ((var (position #\: Member)))
-    (if (not (null (is-string (subseq Member 0 var))))
-        (list (is-string (subseq Member 0 var))
-              (parse-value (subseq Member (+ var 1))))
-      (error "NOOO"))))
+(defun getMembers (Members &optional (index 0))
+  (let ((var (position #\, Members :start index)))
+    (handler-case (cons (parseMember (subseq Members 0 var))
+                        (if (null var) nil
+                          (getMembers (subseq Members (+ var 1)))))
+      (error () 
+        (if (null var) (error "syntax error")
+          (getMembers Members (+ var 1)))))))
 
-(defun parse-value (Value)
-  (cond ((not (null (is-string Value)))
-         (is-string Value))
+(defun getValues (Values &optional (index 0))
+  (let ((var (position #\, Values :start index)))
+    (handler-case (cons (parseValue (subseq Values 0 var))
+                        (if (null var) nil
+                          (getValues (subseq Values (+ var 1)))))
+      (error () 
+        (if (null var) (error "syntax error")
+          (getValues Values (+ var 1)))))))
+
+(defun parseMember (Member &optional (index 0))
+  (let ((var (position #\: Member :start index)))
+    (handler-case (if (not (null (getString (subseq Member 0 var))))
+                      (list (getString (subseq Member 0 var))
+                            (parseValue (subseq Member (+ var 1))))
+                    (error "syntax error"))
+      (error () 
+        (if (null var) (error "syntax error")
+          (parseMember Member (+ var 1)))))))
+
+(defun parseValue (Value)
+  (cond ((string= Value "true") 'true)
+        ((string= Value "false") 'false)
+        ((string= Value "null") 'null)
+        ((not (null (getString Value)))
+         (getString Value))
         ((floatp (read-from-string Value))
-         (parse-float Value))
+         (parse-float (fixString Value)))
         ((not (null (parse-integer Value :junk-allowed t)))
          (parse-integer Value))
-        (t (string-to-json Value))))
+        (t (jsonparse Value))))
 
-(defun is-string (String)
-  (let* ((var (string-trim '(#\Space #\Tab #\Newline) String))
+(defun getString (String)
+  (let* ((var (fixString String))
          (var2 (length var)))
     (if (< var2 2) nil
       (if (and (not (null (search "\"" var :end2 2))) 
                (not (null (search "\"" var :start2 (- var2 1)))))
-          (replaceEscapes (subseq var 1 (- var2 1)))
+          (replaceQuote (subseq var 1 (- var2 1)))
         nil))))
 
-(defun replaceEscapes (String)
+(defun replaceQuote (String)
   (let ((var (search "\\\"" String)))
     (if (null var) String
       (concatenate 'string (subseq String 0 var) "\"" (subseq String (+ var 2))))))
-    
+ 
+(defun fixString (String)
+  (string-trim '(#\Space #\Tab #\Newline) String))
   
+(defun firstChar (String)
+  (char String 0))
+
+(defun lastChar (String)
+  (char String (- (length String) 1)))
+
+(defun removeBrackets (String)
+  (if (< (length String) 2) (error "syntax error")
+    (fixString (subseq String 1 (- (length String) 1)))))
+
+; JSONACCESS
+; esiste solo perchè altrimenti viene applicato &rest ad ogni chiamata ricorsiva
+(defun jsonaccess (json &rest fields)
+  (jsonaccess_ json fields))
+
+; sto provando a rimuovere &rest, se non va rimettilo sotto!
+(defun jsonaccess_ (json fields)
+  (let ((field (first fields)))
+    (cond ((null fields) json)
+          ((and (eql (first json) 'JSONOBJ) (stringp field))
+           (jsonaccess2 (accessField (rest json) field) (rest fields)))
+          ((and (eql (first json) 'JSONARRAY) (numberp field))
+           (jsonaccess2 (accessNumber (rest json) field) (rest fields)))
+          (T (error "errore nei fields")))))
+
+
+; se field è una stringa, accedo all'oggetto
+; si potrebbe aggiungere error come access-numer per leggibilita errore
+(defun accessField (json field)
+  (cond ((null json) (error "field ~A not found" field))
+        ((string= (first (first json)) field) 
+         (second (first json)))
+        (T (accessField (rest json) field))))
+
+
+; se field è un numero, accedo al valore dell'array
+; il secondo cond si può eliminare sostituendo con nth (meglio x leggibilita error)
+(defun accessNumber (json index)
+  (cond ((not (null (nth index json))) 
+         (nth index json))
+        (T (error "index out of bounds"))))
