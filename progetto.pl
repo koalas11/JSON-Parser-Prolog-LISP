@@ -157,7 +157,7 @@ jsonaccess_(jsonobj(X), Var, Result) :-
     !,
     member((Var , Result), X).
 
-% caso base in cui Field è un intero (trovo un intero)
+% caso base in cui Field Ã¨ un intero (trovo un intero)
 
 jsonaccess_(jsonarray(X), Index, Result) :-
     integer(Index),
@@ -194,7 +194,7 @@ jsonread(FileName, JSON) :-
     !,
     close(In).
 
-% READ ALTERNATIVO POSSIBILE DA CANCELLARE GESTISCE CASO \\ ERRORE IN
+% READ ALTERNATIVO POSSIBILE DA CANCELLARE GESTISCE CASO \/ ERRORE IN
 % PROLOG
 
 jsonread(FileName, JSON) :-
