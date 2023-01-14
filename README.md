@@ -1,10 +1,10 @@
 # JSON-Parser-Prolog
 TO-DO
 
-- caso base del jsonaccess in cui non c'è indice nell'array e deve dare false?
-- chiedere al prof come vuole le cose
-- I/O da file (il file scritto deve essere json standard e quindi ez lettura e scrittura) 
-- Lisp (triangle credo in te)
+- caso base del jsonaccess in cui non c'è indice nell'array e deve dare false(?)
 - creare README con spiegazioni dettagliate sul progetto 
 - controllo finale sui nomi dei predicati e funzioni (automatizzato quindi deve essere tutto identico a come richiesto)
+- member nel jsonaccess (json field)
+- finire I/O lisp
+- TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST 
 
