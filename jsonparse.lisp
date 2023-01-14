@@ -38,10 +38,11 @@
 
 (defun parseMember (Member &optional (index 0))
   (let ((var (position #\: Member :start index)))
-    (handler-case (if (not (null (getString (subseq Member 0 var))))
-                      (list (getString (subseq Member 0 var))
-                            (parseValue (fixString (subseq Member (+ var 1)))))
-                    (error "syntax error"))
+    (handler-case 
+        (if (not (null (getString (subseq Member 0 var))))
+            (list (getString (subseq Member 0 var))
+                  (parseValue (fixString (subseq Member (+ var 1)))))
+          (error "syntax error"))
       (error () 
         (if (null var) (error "syntax error")
           (parseMember Member (+ var 1)))))))
@@ -70,7 +71,9 @@
 (defun replaceQuote (String)
   (let ((var (search "\\\"" String)))
     (if (null var) String
-      (concatenate 'string (subseq String 0 var) "\"" (subseq String (+ var 2))))))
+      (concatenate 'string (subseq String 0 var)
+                   "\""
+                   (subseq String (+ var 2))))))
  
 (defun fixString (String)
   (string-trim '(#\Space #\Tab #\Newline) String))
@@ -86,13 +89,11 @@
     (fixString (subseq String 1 (- (length String) 1)))))
 
 ; JSONACCESS
-; esiste solo perchè altrimenti viene applicato &rest ad ogni chiamata ricorsiva
 (defun jsonaccess (json &rest fields)
   (if (and (eql (first json) 'JSONARRAY) (null fields)) 
       (error "field empty with starting JSONARRAY")
     (jsonaccess_ json fields)))
   
-; sto provando a rimuovere &rest, se non va rimettilo sotto!
 (defun jsonaccess_ (json fields)
   (let ((field (first fields)))
     (cond ((null fields) json)
@@ -102,18 +103,12 @@
            (jsonaccess_ (accessNumber (rest json) field) (rest fields)))
           (T (error "errore nei fields")))))
 
-
-; se field è una stringa, accedo all'oggetto
-; si potrebbe aggiungere error come access-numer per leggibilita errore
 (defun accessField (json field)
   (cond ((null json) (error "field ~A not found" field))
         ((string= (caar json) field) 
          (second (first json)))
         (T (accessField (rest json) field))))
 
-
-; se field è un numero, accedo al valore dell'array
-; il secondo cond si può eliminare sostituendo con nth (meglio x leggibilita error)
 (defun accessNumber (json index)
   (cond ((not (null (nth index json))) 
          (nth index json))
