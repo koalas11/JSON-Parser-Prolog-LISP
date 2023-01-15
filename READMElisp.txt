@@ -18,7 +18,7 @@ Entrambe le funzioni per ogni valore chiamano (parseValue (Value)) e (parseMembe
 (parseMember) gestisce i membri di un oggetto definiti come attributo:valore.
 (parseValue) invece determina il tipo di valore, e in caso venga trovato un valore di tipo Oggetto, richiama ricorsivamente (jsonparse) che lo restituirà parsato.
 
-Sia (parseValue) che (parseMember) utilizzano la serie di funzioni (hidequotes) (showquotes) e (getquotespos) per la gestione dei casi in cui nelle stringhe siano presenti elementi del tipo '\\\"'
+Sia (parseValue) che (parseMember) utilizzano la serie di funzioni (hidequotes) (showquotes) e (getquotespos) per la gestione dei casi in cui nelle stringhe siano presenti elementi come gli apici interni '\\\"'
 
 Per accedere a l'output di (jsonparse) è stata implementata la funzione (jsonaccess (json &rest fields))
 se field è una stringa, chiama (accessField(json field)), se field è un numero chiama (accessNumber(json index))
