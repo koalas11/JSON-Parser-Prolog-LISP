@@ -124,7 +124,7 @@ jsonparseArrayRev_(Result, [Head | Tail]) :-
     append([Pair], ResultTail, Result).
 
 % CHECKVALUE
-% Controlla la correttezza del valora e ritorna
+% Controlla la correttezza del valore e ritorna
 % il valore stesso o il valore parsato nel caso
 % sia un oggetto o array
 checkValue(Str, Str) :-

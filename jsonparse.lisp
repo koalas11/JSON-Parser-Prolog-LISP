@@ -74,6 +74,7 @@
         (t (jsonparse value))))
 
 ;;Estraggo la stringa controllando la correttezza e gestendo
+;;i doppi apici interni
 (defun getString (string)
   (let* ((fixedString (fixString string))
          (length (length fixedString))
@@ -90,7 +91,7 @@
       nil)))
 
 ;;Funzioni di supporto a getString
-;;getQuotesPos mette in una lista la posizione dei doppiapici
+;;getQuotesPos mette in una lista la posizione dei doppi apici
 ;;interni alla stringa identificati come \\\"
 (defun getQuotesPos (string &optional (index 0))
   (let ((pos (search "\\\"" string :start2 index)))
@@ -218,7 +219,7 @@
         (format stream "," ))
       (jsondumparray stream (rest json) tab))))
 
-;;Stampa il valore in base facendo attenzione ai valori (false null true)
+;;Stampa il valore facendo attenzione ai valori (false null true)
 (defun printValue (stream value tab)
   (if (listp value) (jsondump_ stream value tab)
     (cond ((eql value 'true)
@@ -229,7 +230,7 @@
            (format stream "null"))
           (t (format stream "~S" value)))))
 
-;;Stampa gli spazi per rendere leggibile il file
+;;Stampa gli spazi per semplificare la letture del file
 (defun printTab (stream tab)
   (if (= tab 0) nil
     (progn 
