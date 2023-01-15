@@ -12,7 +12,7 @@ Viene controllata la correttezza dell'input e nel caso sia errato, il predicato 
 L'input è organizzato nel seguente modo:
 
 I valori di tipo Oggetto sono nella forma jsonobj(Members) o jsonarray(Elements), dove Members può essere '[]', '[Pair | MoreMembers]'. 
-Pair è la coppia (Attributo, Valore), dove Attributo può essere soltanto una stringa, Valore un Numero o un nuovo Oggetto. Elements può essere vuoto '[]' o '[Valore | Resto]'.
+Pair è la coppia (Attributo, Valore), dove Attributo può essere soltanto una stringa, Valore, un Numero o un nuovo Oggetto. Elements può essere vuoto '[]' o '[Valore | Resto]'.
 
 Successivamente è stato implementato il predicato jsonparse_/2, il quale è definito come jsonparse(Input, Result) ed è in grado di smistare input tra jsonparseobj_/2 e jsonparsearray_/2,
 i quali si occupano rispettivamente della gestione del parsing di oggetti e array.
