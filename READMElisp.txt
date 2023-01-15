@@ -30,4 +30,4 @@ Per le operazioni di lettura e scrittura su file sono state create 2 funzioni (j
 
 (jsonread(file)) carica il file indicato nella path 'file', lo trasforma in stringa e richiama (jsonparse) per restituire infine la lista come richiesto.
 
-(jsondump (json file)) invece se 'file' è presente lo sovrascrive, se non c'è lo crea e stampa all'interno di esso 'json' richiamando a seconda del tipo di valore trovato (jsondumparray) e (jsondumpobj)
+(jsondump (json file)) invece se 'file' è presente lo sovrascrive, se non c'è, lo crea e stampa all'interno di esso 'json' richiamando a seconda del tipo di valore trovato (jsondumparray) e (jsondumpobj)
