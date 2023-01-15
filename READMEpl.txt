@@ -21,7 +21,7 @@ Vi sono altri due predicati utilizzati, checkValue/2 e jsonParseRev_/2:
 
 checkValue/2 è definito come checkValue(Input, Compare), checkValue(JSON, Result) e checkValue(Result, JSON), quest'ultimo usato in particolare da jsonParseRev_/2
 
-jsonparseRev_/2 definito come (Result, Input) viene utilizzato di modo che, a partire da un oggetto JSON già parsato, si ottiene come risultato un JSON non parsato come termine. Ovviamente anch'esso disponde di altri 2 predicati a supporto: jsonparseObjRev_/2 e jsonparseArrayRev_/2 che rispettivamente si occupano anch'essi della gestione di oggetti e array.
+jsonparseRev_/2 definito come (Result, Input) viene utilizzato di modo che, a partire da un oggetto JSON già parsato, si ottiene come risultato un JSON non parsato come termine. Ovviamente anch'esso dispone di altri 2 predicati a supporto: jsonparseObjRev_/2 e jsonparseArrayRev_/2 che rispettivamente si occupano anch'essi della gestione di oggetti e array.
 
 Per l'accesso all'oggetto JSON parsato viene usato jsonaccess/3, questo predicato è implementato come jsonaccess(JSON, Fields, Result). 
 Il predicato inoltre sfrutta jsonaccess_/3 implementato come jsonaccess_(Input, Type, Result).
