@@ -40,7 +40,7 @@
 ;;Gestisco i valori definiti come (Value)*
 (defun getValues (values &optional (index 0))
   (let ((pos (position #\, values :start index)))
-    (handler-case (cons (parseValue (subseq values 0 pos))
+    (handler-case (cons (parseValue (fixString (subseq values 0 pos)))
                         (if (null pos) nil
                           (getValues (subseq values (+ pos 1)))))
       (error () 
