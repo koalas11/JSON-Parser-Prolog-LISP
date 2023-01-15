@@ -1,7 +1,7 @@
 La realizzazione in prolog del parser JSON vede come primo predicato jsonparse/2.
 jsonparse/2 utilizza l'unificazione per il riconoscimento di Array o Oggetti.
 Inoltre viene usato univ, che serve per identificare la presenza di uno o più coppie di chiave valore.
-Esso è definito come 'jsonparse(InputType, Result)', dove 'inputType' è diverso a seconda dell'input fornito, ed include anche casi base come 
+Esso è definito come 'jsonparse(InputType, Result)', dove 'inputType' è diverso a seconda dell'input fornito ed include anche casi base come 
 
 'jsonparse({}, JSON)' che restituirà jsonobj([])
 
