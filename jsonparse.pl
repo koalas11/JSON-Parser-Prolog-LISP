@@ -1,3 +1,7 @@
+%%%% Sanvito Marco 886493
+%%%% Tugrul Emre 886027
+%%%% Piccioni Matteo 879377
+
 %%%% -*- Mode: Prolog -*-
 
 %%%% jsonparse.pl --

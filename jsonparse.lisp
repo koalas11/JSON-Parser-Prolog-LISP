@@ -1,3 +1,7 @@
+;;;; Sanvito Marco 886493
+;;;; Tugrul Emre 886027
+;;;; Piccioni Matteo 879377
+
 ;;;; -*- Mode: Lisp -*-
 
 ;;;; jsonparse.lisp --
@@ -62,34 +66,35 @@
 (defun getQuotesPos (string &optional (index 0))
   (let ((pos (search "\\\"" string :start2 index)))
     (if (null pos) nil
-      (cons (- pos 1) (getQuotesPos string (+ pos 1))))))
+      (cons (- pos 1) (getQuotesPos (subseq string (+ pos 1)))))))
 
 (defun hideQuotes (string)
   (let ((index (search "\\\"" String)))
     (if (null index) string
       (concatenate 'string (subseq string 0 index)
-                   (subseq string (+ index 2))))))
+                   (hideQuotes (subseq string (+ index 2)))))))
 
 (defun showQuotes (string list)
   (let ((index (first list)))
-        (if (null index) string
+    (if (null index) string
       (concatenate 'string (subseq string 0 index)
                    "\""
-                   (subseq string index)))))
+                   (showQuotes (subseq string index) (rest list))))))
 
 (defun getString (String)
   (let* ((var (fixString String))
          (var2 (length var))
          (hiddenstring (HideQuotes var)))
-    (if (< var2 2) nil
-      (if (and (not (null (search "\"" var :end2 2))) 
-               (not (null (search "\"" var :start2 (- var2 1)))))
-          (if (null (search "\"" 
-                            (subseq hiddenstring 1 
-                                    (- (length hiddenstring) 1))))
-              (showQuotes (subseq hiddenstring 1 (- (length hiddenstring) 1)) 
-                          (getQuotesPos var))
-            nil)))))
+    (if (and (> var2 2)
+             (not (null (search "\"" var :end2 2)))
+             (not (null (search "\"" var :start2 (- var2 1))))
+             (null 
+              (search "\"" (subseq hiddenstring 1 
+                                   (- (length hiddenstring) 1)))))
+        (showQuotes (subseq hiddenstring 1
+                            (- (length hiddenstring) 1))
+                    (getQuotesPos var))
+      nil)))
 
 (defun fixString (String)
   (string-trim '(#\Space #\Tab #\Newline) String))
@@ -141,7 +146,7 @@
 (defun fileToString (stream)
   (let ((riga (read-line stream nil 'eof)))
     (if (eq riga 'eof) ""
-      (concatenate 'string (fixString riga) (fileToString stream)))))
+      (concatenate 'string riga (fileToString stream)))))
 
 
 ; legge oggetto json parsato e lo stampa in formato json
@@ -172,7 +177,6 @@
       (format stream "]"))
      (t (error "dump error")))))
 
-
 (defun jsondumpobj (stream JSON tab)
   (if (null json) nil
     (let ((pair (first JSON)))
@@ -183,8 +187,6 @@
       (if (null (rest JSON)) nil
         (format stream "," ))
       (jsondumpobj stream (rest JSON) tab))))
-
-
 
 (defun jsondumparray (stream JSON tab)
   (if (null json) nil
