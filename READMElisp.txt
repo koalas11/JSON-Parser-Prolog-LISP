@@ -31,3 +31,6 @@ Per le operazioni di lettura e scrittura su file sono state create 2 funzioni (j
 (jsonread(file)) carica il file indicato nella path 'file', lo trasforma in stringa e richiama (jsonparse) per restituire infine la lista come richiesto.
 
 (jsondump (json file)) invece se 'file' è presente lo sovrascrive, se non c'è, lo crea e stampa all'interno di esso 'json' richiamando a seconda del tipo di valore trovato (jsondumparray) e (jsondumpobj)
+
+Di seguito possono essere trovati degli esempi sui quali il programma è stato testato, con i vari tipi di valori
+(JSONOBJ ("Example" (JSONOBJ ("number int" 42) ("number float" 42.0) ("number exponential" 42.0) ("string" "im a string and \"42\" best number") ("ciao" #))))
