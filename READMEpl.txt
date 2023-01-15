@@ -40,6 +40,16 @@ Anch'esso, sfruttando jsondumpobj_/3, jsondumparray_/3 riconosce e organizza gli
 
 Di seguito possono essere trovati degli esempi sui quali il programma è stato testato, con i vari tipi di valori
 
+{
+    "Example" : {
+       "number int" : 42,
+       "number float" : 42.0,
+       "number exponential" : 4.2e1,
+       "string" : "i'm a string and \"42\" best number",
+       "special values" : [true, false, null]
+    }
+}
+
 jsonobj([("Example", jsonobj([("number int", 42), ("number float", 42.0), ("number exponential", 42.0), ("string", "i'm a string and \"42\" best number"), (..., ...)]))])
 
 Nota: a differenza di quanto richiesto, i nomi non sono stati messi all'inizio in quanto per abilitare la modalità corretta di Emacs era necessario usare la prima riga per Mode: Prolog
