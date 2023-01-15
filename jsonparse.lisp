@@ -38,12 +38,12 @@
 
 (defun parseMember (Member &optional (index 0))
   (let ((var (position #\: Member :start index)))
-    (handler-case 
+    (handler-case
         (if (not (null (getString (subseq Member 0 var))))
             (list (getString (subseq Member 0 var))
                   (parseValue (fixString (subseq Member (+ var 1)))))
           (error "syntax error"))
-      (error () 
+      (error ()
         (if (null var) (error "syntax error")
           (parseMember Member (+ var 1)))))))
 
@@ -59,22 +59,38 @@
          (parse-integer Value))
         (t (jsonparse Value))))
 
+(defun getQuotesPos (string &optional (index 0))
+  (let ((pos (search "\\\"" string :start2 index)))
+    (if (null pos) nil
+      (cons (- pos 1) (getQuotesPos string (+ pos 1))))))
+
+(defun hideQuotes (string)
+  (let ((index (search "\\\"" String)))
+    (if (null index) string
+      (concatenate 'string (subseq string 0 index)
+                   (subseq string (+ index 2))))))
+
+(defun showQuotes (string list)
+  (let ((index (first list)))
+        (if (null index) string
+      (concatenate 'string (subseq string 0 index)
+                   "\""
+                   (subseq string index)))))
+
 (defun getString (String)
   (let* ((var (fixString String))
-         (var2 (length var)))
+         (var2 (length var))
+         (hiddenstring (HideQuotes var)))
     (if (< var2 2) nil
       (if (and (not (null (search "\"" var :end2 2))) 
                (not (null (search "\"" var :start2 (- var2 1)))))
-          (replaceQuote (subseq var 1 (- var2 1)))
-        nil))))
+          (if (null (search "\"" 
+                            (subseq hiddenstring 1 
+                                    (- (length hiddenstring) 1))))
+              (showQuotes (subseq hiddenstring 1 (- (length hiddenstring) 1)) 
+                          (getQuotesPos var))
+            nil)))))
 
-(defun replaceQuote (String)
-  (let ((var (search "\\\"" String)))
-    (if (null var) String
-      (concatenate 'string (subseq String 0 var)
-                   "\""
-                   (subseq String (+ var 2))))))
- 
 (defun fixString (String)
   (string-trim '(#\Space #\Tab #\Newline) String))
   
@@ -120,12 +136,12 @@
   (with-open-file (stream filename
                           :direction :input
                           :if-does-not-exist :error)
-    (fileToString stream)))
+    (jsonparse (fileToString stream))))
 
 (defun fileToString (stream)
   (let ((riga (read-line stream nil 'eof)))
     (if (eq riga 'eof) ""
-      (concatenate 'string riga (fileToString stream)))))   				
+      (concatenate 'string (fixString riga) (fileToString stream)))))
 
 
 ; legge oggetto json parsato e lo stampa in formato json
