@@ -7,7 +7,7 @@ Esso è definito come 'jsonparse(InputType, Result)', dove 'inputType' è divers
 
 'jsonparse([], JSON)' che restituirà jsonarray([])
 
-Viene controllata la correttezza dell'input e nel caso sia errato, il predicato fallirà
+Viene controllata la correttezza dell'input e nel caso sia errato, il predicato fallirà.
 
 L'input è organizzato nel seguente modo:
 
