@@ -38,3 +38,4 @@ jsondump/2 è implementato come jsondump(JSON, File). Ovvero prendendo in input 
 scrive sulla path del file 'File', il quale sarà creato nel caso non fosse già presente o in alternativa sovrascritto.
 Anch'esso, sfruttando jsondumpobj_/3, jsondumparray_/3 riconosce e organizza gli elementi in 'JSON' che verranno scritti su file con write/2 e printValue/2.
 
+Nota: a differenza di quanto richiesto, i nomi non sono stati messi all'inizio in quanto per abilitare la modalità corretta di Emacs era necessario usare la prima riga per Mode: Prolog
