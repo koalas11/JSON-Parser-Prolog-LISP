@@ -35,6 +35,6 @@ E' stato implementato anche un diverso jsonread/2, il quale sfrutta anche jsonre
 che consente di gestire anche il caso '\/' in quanto non è gestito da prolog e potrebbe generare errori.
 
 jsondump/2 è implementato come jsondump(JSON, File). Ovvero prendendo in input un oggetto JSON, 
-scrive sulla path del file 'File', il quale sarà o creato nel caso non fosse già presente o in alternativa sovrascritto.
+scrive sulla path del file 'File', il quale sarà creato nel caso non fosse già presente o in alternativa sovrascritto.
 Anch'esso, sfruttando jsondumpobj_/3, jsondumparray_/3 riconosce e organizza gli elementi in 'JSON' che verranno scritti su file con write/2 e printValue/2.
 
