@@ -38,4 +38,8 @@ jsondump/2 è implementato come jsondump(JSON, File). Ovvero prendendo in input 
 scrive sulla path del file 'File', il quale sarà creato nel caso non fosse già presente o in alternativa sovrascritto.
 Anch'esso, sfruttando jsondumpobj_/3, jsondumparray_/3 riconosce e organizza gli elementi in 'JSON' che verranno scritti su file con write/2 e printValue/2.
 
+Di seguito possono essere trovati degli esempi sui quali il programma è stato testato, con i vari tipi di valori
+
+jsonobj([("Example", jsonobj([("number int", 42), ("number float", 42.0), ("number exponential", 42.0), ("string", "i'm a string and \"42\" best number"), (..., ...)]))])
+
 Nota: a differenza di quanto richiesto, i nomi non sono stati messi all'inizio in quanto per abilitare la modalità corretta di Emacs era necessario usare la prima riga per Mode: Prolog
