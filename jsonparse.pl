@@ -7,6 +7,9 @@
 %%%% jsonparse.pl --
 
 % JSONPARSE
+% Prende in input un json (di diversi tipi) e lo
+% parsa (gestisce anche il caso in cui si abbia già
+% un oggetto parsato)
 
 % Atom
 jsonparse({}, jsonobj([])) :- !.
@@ -51,8 +54,7 @@ jsonparse(Result, JSON) :-
     !,
     jsonparseRev_(Result, JSON).
 
-% Parser
-
+% Funzioni di supporto per il parser
 jsonparse_({}, jsonobj([])) :- !.
 
 jsonparse_({Members}, jsonobj(Result)) :-
@@ -85,7 +87,6 @@ jsonparsearray_([Val | Tail], [RVal | RTail]) :-
     jsonparsearray_(Tail, RTail).
 
 % Reverse Parser
-
 jsonparseRev_({}, jsonobj([])) :- !.
 
 jsonparseRev_({Members}, jsonobj(List)) :-
@@ -122,8 +123,10 @@ jsonparseArrayRev_(Result, [Head | Tail]) :-
     jsonparseArrayRev_(ResultTail, Tail),
     append([Pair], ResultTail, Result).
 
-% checkValue
-
+% CHECKVALUE
+% Controlla la correttezza del valora e ritorna
+% il valore stesso o il valore parsato nel caso
+% sia un oggetto o array
 checkValue(Str, Str) :-
     string(Str),
     !.
@@ -149,7 +152,9 @@ checkValue(Result, JSON) :-
     jsonparseRev_(Result, JSON).
 
 % JSONACCESS
-
+% Accede al json parsato in base ai fields passati
+% in input permettendo anche l'uso di variabili
+% nel json o nei fields
 jsonaccess(jsonarray(_), [], _) :- !, fail.
 
 jsonaccess(JSON, Fields, Result) :-
@@ -187,7 +192,6 @@ jsonaccess_(Obj, [Field | OtherFields], Result) :-
 
 % INPUT
 % JSONREAD
-
 jsonread(FileName, JSON) :-
     nonvar(FileName),
     catch(open(FileName, read, In), _, fail),
@@ -203,7 +207,7 @@ jsonread(FileName, JSON) :-
     close(In).
 
 % Caso per gestire la presenza di \/ nel file
-
+% nel caso il primo read_string fallisca
 jsonread(FileName, JSON) :-
     nonvar(FileName),
     catch(open(FileName, read, In), _, fail),
@@ -236,7 +240,9 @@ jsonread(Stream, Char, Chars) :-
 
 % OUTPUT
 % JSONDUMP
-
+% Stampa su file il json parsato in formato
+% json creando un nuovo file se non presente
+% o sovrascrivendo se presente
 jsondump(JSON, File) :-
     nonvar(JSON),
     atom(File),
@@ -270,7 +276,6 @@ jsondump_([jsonarray, List], Out, Index) :-
     write(Out, "]").
 
 %OBJ DUMP
-
 jsondumpobj_([',', Str, Value], Out, Index) :-
     checkValue(Value, _),
     !,
@@ -299,7 +304,6 @@ jsondumpobj_([Head | Tail], Out, Index) :-
     jsondumpobj_(Tail, Out, Index).
 
 % ARRAY DUMP
-
 jsondumparray_([Head], Out, Index) :-
     !,
     tab(Out, Index),
@@ -323,8 +327,9 @@ jsondumparray_(Value, Out, Index) :-
     Value =.. List,
     jsondump_(List, Out, Index).
 
-% printValue
-
+% PRINTVALUE
+% Stampa il valore tenendo conto se è una stringa
+% oppure un altro valore
 printValue(Out, Str) :-
     string(Str),
     !,
