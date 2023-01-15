@@ -1,10 +1,11 @@
-%%%% Sanvito Marco 886493
-%%%% Tugrul Emre 886027
-%%%% Piccioni Matteo 879377
-
 %%%% -*- Mode: Prolog -*-
 
 %%%% jsonparse.pl --
+
+%%%% COMPONENTI GRUPPO:
+%%%% Sanvito Marco 886493
+%%%% Tugrul Emre 886027
+%%%% Piccioni Matteo 879377
 
 % JSONPARSE
 % Prende in input un json (di diversi tipi) e lo

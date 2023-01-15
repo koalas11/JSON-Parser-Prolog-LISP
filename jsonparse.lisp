@@ -1,10 +1,11 @@
-;;;; Sanvito Marco 886493
-;;;; Tugrul Emre 886027
-;;;; Piccioni Matteo 879377
-
 ;;;; -*- Mode: Lisp -*-
 
 ;;;; jsonparse.lisp --
+
+;;;; COMPONENTI GRUPPO:
+;;;; Sanvito Marco 886493
+;;;; Tugrul Emre 886027
+;;;; Piccioni Matteo 879377
 
 ;;JSONPARSE
 ;;Prendo la stringa e la pulisco da eventuali spazi, tab e newline
