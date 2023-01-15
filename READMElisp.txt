@@ -21,7 +21,7 @@ Entrambe le funzioni per ogni valore chiamano (parseValue (Value)) e (parseMembe
 Sia (parseValue) che (parseMember) utilizzano la serie di funzioni (hidequotes) (showquotes) e (getquotespos) per la gestione dei casi in cui nelle stringhe siano presenti elementi come gli apici interni '\\\"'
 Altri valori come 'false', 'true' e 'null' sono gestiti come simboli
 
-Per accedere a l'output di (jsonparse) è stata implementata la funzione (jsonaccess (json &rest fields))
+Per accedere all'output di (jsonparse) è stata implementata la funzione (jsonaccess (json &rest fields))
 se field è una stringa, chiama (accessField(json field)), se field è un numero chiama (accessNumber(json index))
  
 (accessField(json field)) ricerca l'attributo corrispondente nell'oggetto, mentre (accessNumber(json index)) accede all'elemento nell'array
