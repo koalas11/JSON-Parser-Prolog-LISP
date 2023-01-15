@@ -25,7 +25,7 @@ jsonparseRev_/2 definito come (Result, Input) viene utilizzato di modo che, a pa
 
 Per l'accesso all'oggetto JSON parsato viene usato jsonaccess/3, questo predicato è implementato come jsonaccess(JSON, Fields, Result). 
 Il predicato inoltre sfrutta jsonaccess_/3 implementato come jsonaccess_(Input, Type, Result).
-jsonaccess_/3 a seconda di 'type' gestisce 'input' in modo da fornire il risultato cercato all'interno di input.
+jsonaccess_/3 a seconda di 'type' gestisce 'input' in modo da fornire il risultato cercato all'interno di Result.
 
 Inoltre il parser fornisce due predicati per lettura e scrittura su file, jsonread/2, jsondump/2.
 
