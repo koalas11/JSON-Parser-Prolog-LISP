@@ -33,4 +33,16 @@ Per le operazioni di lettura e scrittura su file sono state create 2 funzioni (j
 (jsondump (json file)) invece se 'file' è presente lo sovrascrive, se non c'è, lo crea e stampa all'interno di esso 'json' richiamando a seconda del tipo di valore trovato (jsondumparray) e (jsondumpobj)
 
 Di seguito possono essere trovati degli esempi sui quali il programma è stato testato, con i vari tipi di valori
-(JSONOBJ ("Example" (JSONOBJ ("number int" 42) ("number float" 42.0) ("number exponential" 42.0) ("string" "im a string and \"42\" best number") ("ciao" #))))
+
+{
+    "Example" : {
+       "number int" : 42,
+       "number float" : 42.0,
+       "number exponential" : 4.2e1,
+       "string" : "i'm a string and \"42\" best number",
+       "special values" : [true, false, null]
+    }
+}
+
+che risulta in:
+(JSONOBJ ("Example" (JSONOBJ ("number int" 42) ("number float" 42.0) ("number exponential" 42.0) ("string" "im a string and \"42\" best number") ("special values" #))))
