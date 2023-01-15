@@ -5,7 +5,8 @@ L'input è organizzato nel seguente modo:
 i valori di tipo Oggetto sono nella forma '('jsonobj members ')' o '('jsonarray elements')', dove Members può essere coppia*, coppia '('attributo valore ')',
 attributo è una stringa, valore può essere a sua volta una stringa, un numero o un Oggetto. elements può essere zero o più valori.
 
-Successivamente viene richiamata la funzione (stringToJson (String)) la quale determina se siamo in un caso elementare come {} o [], grazie ad un (cond) è in grado di riconoscere l'inizio di un array o di un oggetto.
+Successivamente viene richiamata la funzione (stringToJson (String)) la quale determina se siamo in un caso elementare come {} o [].
+Con l'uso di un (cond) è in grado di riconoscere l'inizio di un array o di un oggetto.
 
 (jsonparse) sfrutta anche due funzioni ausiliarie: (getMembers (String)) e (getValues (String))
 
